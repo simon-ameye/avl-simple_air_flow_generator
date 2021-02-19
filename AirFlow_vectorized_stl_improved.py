@@ -11,26 +11,30 @@ from tkinter import filedialog
 root = tk.Tk()
 root.withdraw()
 
-
 #--------------------User Parameters--------------------
 
 # Data
-
 file_path =  filedialog.askopenfilename(initialdir = "file_path",title = "Select file",filetypes = (("STL files","*.STL"),("all files","*.*")))
 Gear_Mesh = mesh.Mesh.from_file(file_path)
 
 Thickness_Points_Ratio = 0.05 #Ratio of furthest points from rotation axis to consider for the determination of gear thickness
-Helix_angle = 0             /180*np.pi     #rad Default : 0
-Wheel_Rotation_Speed = -226.1725                #RPS
-Rotation_Direction = -1
-Scaling_Of_Mesh = 1/1000
-Domain_Scaling_To_Radius = 2
+Helix_angle = 0     #deg Default : 0
+Wheel_Rotation_SpeedRPM = -12000               #Rotations per minute
+Rotation_Direction = 1
+Scaling_Of_Mesh = 1/1000 #mm -> m
+Domain_Scaling_To_Radius = 2 #domain radius = gear radius * Domain_Scaling_To_Radius
+Domain_Scaling_To_axis = 4 #domain axis = gear axis * Domain_Scaling_To_axis
 
 #Grid properties
-Spacial_Discretization = 3   /1000          #m Recommended : Spacial_Discretization = 5
+Spacial_Discretization = 3    #mm Recommended : Spacial_Discretization = 5
 
 #Model properties
-Dumping_oefficient = 1000                   #tuning Default : 1000
+Dumping_oefficient = 1000      #tuning Default : 1000
+
+#Convert data
+Wheel_Rotation_Speed = Wheel_Rotation_SpeedRPM / 60 * 2 * np.pi #RPM -> rad / s
+Helix_angle = Helix_angle / 180 * np.pi #deg -> rad
+Spacial_Discretization = Spacial_Discretization / 1000 #mm -> m
 
 
 #Rescale mesh
@@ -75,12 +79,11 @@ print("Gear radius = "+str(Gear_Radius)+"m")
 print("Gear tooth limits according to "+Revolution_Axis_String+" = "+str(Gear_Extreme_Thickness_Pos)+"m")
 print("Gear thickness = "+str(Gear_Extreme_Thickness_Pos[1]-Gear_Extreme_Thickness_Pos[0])+"m")
 
-
 #Domain properties
 Domain_Radius = Gear_Radius*Domain_Scaling_To_Radius
-Gear_Thickness = Gear_Extreme_Thickness_Pos[1]-Gear_Extreme_Thickness_Pos[0]                                          #m Recommended : Domain_Radius = Wheel_Radius*2
-Domain_thickness_limits = [Gear_Extreme_Thickness_Pos[0]-Gear_Thickness,Gear_Extreme_Thickness_Pos[1]+Gear_Thickness]            #m Recommended : Domain_thickness = (Domain_Radius-Wheel_Radius)*2+Wheel_thickness
-
+Gear_Thickness = Gear_Extreme_Thickness_Pos[1]-Gear_Extreme_Thickness_Pos[0]
+Domain_thickness_limits = [Gear_Extreme_Thickness_Pos[0] - Gear_Thickness / 2 * (Domain_Scaling_To_axis - 1),
+                            Gear_Extreme_Thickness_Pos[1] + Gear_Thickness / 2 * (Domain_Scaling_To_axis - 1)]
 
 #--------------------Code--------------------
 #Disc sampling method
@@ -113,9 +116,8 @@ result[:,Other_Dir_Than_Rot[1]+3] = np.cos(angle_list)*Air_Velocity
 result[:,Revolution_Axis+3] = Air_Velocity*np.sin(Helix_angle)*np.cos(Helix_angle)
 
 #Write file
-NAMES = np.array(['X','Y','Z','U','V','W']);
+NAMES = np.array(['X','Y','Z','U','V','W'])
 result_cat = np.vstack((NAMES,result))
-file_path =  filedialog.asksaveasfilename(initialdir = "file_path",title = "Select file",filetypes = (("CSV files","*.CSV"),("all files","*.*")))
+#file_path =  filedialog.asksaveasfilename(initialdir = "file_path",title = "Select file",filetypes = (("CSV files","*.CSV"),("all files","*.*")))
+file_path = file_path.split('.')[0] + ' ' +str(Wheel_Rotation_SpeedRPM) + "RPM.csv"
 np.savetxt(file_path, result_cat, delimiter="," , fmt="%s")
-
-
