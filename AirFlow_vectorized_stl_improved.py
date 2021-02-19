@@ -12,24 +12,23 @@ root = tk.Tk()
 root.withdraw()
 
 #--------------------User Parameters--------------------
-
 # Data
 file_path =  filedialog.askopenfilename(initialdir = "file_path",title = "Select file",filetypes = (("STL files","*.STL"),("all files","*.*")))
 Gear_Mesh = mesh.Mesh.from_file(file_path)
 
-Thickness_Points_Ratio = 0.05 #Ratio of furthest points from rotation axis to consider for the determination of gear thickness
-Helix_angle = 0     #deg Default : 0
-Wheel_Rotation_SpeedRPM = -12000               #Rotations per minute
-Rotation_Direction = 1
-Scaling_Of_Mesh = 1/1000 #mm -> m
-Domain_Scaling_To_Radius = 2 #domain radius = gear radius * Domain_Scaling_To_Radius
-Domain_Scaling_To_axis = 4 #domain axis = gear axis * Domain_Scaling_To_axis
+Thickness_Points_Ratio = 0.05 #[-] Ratio of furthest points from rotation axis to consider for the determination of gear thickness
+Helix_angle = 0     #[deg] Default : 0
+Wheel_Rotation_SpeedRPM = -12000 #[Rotations per minute]
+Rotation_Direction = 1 # [-]
+Scaling_Of_Mesh = 1/1000 # [-]mm -> m
+Domain_Scaling_To_Radius = 2 #[-] domain radius = gear radius * Domain_Scaling_To_Radius
+Domain_Scaling_To_axis = 4 #[-] domain axis = gear axis * Domain_Scaling_To_axis
 
 #Grid properties
-Spacial_Discretization = 3    #mm Recommended : Spacial_Discretization = 5
+Spacial_Discretization = 3 #[mm] Recommended : Spacial_Discretization = 5
 
 #Model properties
-Dumping_oefficient = 1000      #tuning Default : 1000
+Dumping_oefficient = 1000 #[-] tuning Default : 1000
 
 #Convert data
 Wheel_Rotation_Speed = Wheel_Rotation_SpeedRPM / 60 * 2 * np.pi #RPM -> rad / s
